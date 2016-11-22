@@ -28,8 +28,16 @@ if ( file_exists( 'Test - Parse Sheet.csv' ) ) {
 	die;
 }
 
+$csv_header_format = [ 'EmpID', 'Name', 'Last', 'Skill1', 'Skill2', 'Skill3', 'Skill4', 'Skill5', 'StackID', 'StackNickname', 'CreatedBy', 'UpdatedBy' ];
+
 // Column headings, 1st row of csv.
 $header = $array[0];
+
+// Validate if the csv file is in required format.
+if ( $header !== $csv_header_format ) {
+	die( 'Sorry! your csv file format do not match' );
+}
+
 $i = 0;
 
 // Array for csv data as array[column_name]=>value
