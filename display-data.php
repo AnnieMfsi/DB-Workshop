@@ -1,3 +1,9 @@
+<?php
+/**
+ * Script to display the employee detail
+ * Fetch the data from db and dispaly in browser.
+ */
+?>
 <!DOCTYPE html>
 <html lang="en">
     <head>
