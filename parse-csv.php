@@ -33,6 +33,9 @@ $csv_header_format = [ 'EmpID', 'Name', 'Last', 'Skill1', 'Skill2', 'Skill3', 'S
 // Column headings, 1st row of csv.
 $header = $array[0];
 
+$header = array_map( 'stripslashes', $header );
+$header = array_map( 'strip_tags', $header );
+
 // Validate if the csv file is in required format.
 if ( $header !== $csv_header_format ) {
 	die( 'Sorry! your csv file format do not match' );

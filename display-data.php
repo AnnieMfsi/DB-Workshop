@@ -6,14 +6,10 @@
 ?>
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="description" content="">
-        <meta name="author" content="">
-        <title>Employee Detail</title>
-    </head>
+	<head>
+		<meta charset="utf-8">
+		<title>Employee Detail</title>
+	</head>
 	<style>
 
 	table {
@@ -34,7 +30,7 @@
 	    background-color: #dddddd;
 	}
 	</style>
-    <body>
+	<body>
 <?php
 
 // Calling function to createdb connection.
@@ -57,15 +53,18 @@ if ( ! $result ) {
 	die( 'Could not get data: ' . mysql_error() );
 }
 
-// Creating html for table.
-echo '<table align="center" ><thead><tr><th>EmpID</th>
-            <th>First Name</th><th>Last Name</th><th>SKill1</th><th>SKill2</th><th>SKill3</th><th>SKill4</th><th>SKill5</th><th>Stack ID</th><th>Stack Name</th>
-            <th>Created By</th><th>Updated By</th></tr></thead><tbody>';
+if ( 0 < mysqli_num_rows( $result ) ) {
+	// Creating html for table.
+	echo '<table align="center" ><thead><tr><th>EmpID</th>
+    <th>First Name</th><th>Last Name</th><th>SKill1</th><th>SKill2</th><th>SKill3</th><th>SKill4</th><th>SKill5</th><th>Stack ID</th><th>Stack Name</th>
+    <th>Created By</th><th>Updated By</th></tr></thead><tbody>';
+}
 
-// For all the records
+// For all the records.
 while ( $row = mysqli_fetch_array( $result, MYSQLI_ASSOC ) ) {
 	echo '<tr>';
 	foreach ( $row as $key => $value ) {
+		$row[ $key ] = htmlspecialchars( $value );
 
 		// For the comma separated skills
 		if ( 'skills' === $key ) {
