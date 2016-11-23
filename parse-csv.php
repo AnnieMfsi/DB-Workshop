@@ -8,6 +8,7 @@
 ini_set( 'display_startup_errors', 1 );
 ini_set( 'display_errors', 1 );
 
+$start = microtime(true);
 // Check if the csv file exist.
 if ( file_exists( 'Test - Parse Sheet.csv' ) ) {
 	$file = fopen( 'Test - Parse Sheet.csv', 'r' );
@@ -41,7 +42,7 @@ if ( $header !== $csv_header_format ) {
 	die( 'Sorry! your csv file format do not match' );
 }
 
-$i = 0;
+// $i = 0;
 
 // Array for csv data as array[column_name]=>value
 $csv_data = array();
@@ -52,14 +53,7 @@ foreach ( $array as $key => $value ) {
 	// 0th row is header.
 	if ( 0 !== $key ) {
 
-		// For each field in a row.
-		foreach ( $value as $c => $cell ) {
-			$list[ $header[ $c ] ] = $cell;
-		}
-
-		// Creating array for csv data.
-		$csv_data[ $i ] = $list;
-		$i++;
+		$csv_data[] = array_combine( $header, $value );
 	}
 }
 
@@ -125,7 +119,9 @@ foreach ( $csv_data as $row ) {
 
 mysqli_close( $conn );
 
-echo 'Data Successfully inserted';
+$end = microtime(true); ;
+
+echo 'Data Successfully inserted in ' . ( $end - $start ) ;
 
 /**
  * To create database connection.
