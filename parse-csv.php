@@ -11,7 +11,11 @@ ini_set( 'display_errors', 1 );
 $start = microtime( true );
 
 // Check if the csv file exist.
-if ( file_exists( 'Test - Parse Sheet.csv' ) ) {
+try {
+	if ( ! file_exists( 'Test - Parse Sheet.csv' ) ) {
+
+		throw new Exception( 'File does not exist!' );
+	}
 	$file = fopen( 'Test - Parse Sheet.csv', 'r' );
 	$i = 0;
 
@@ -25,102 +29,103 @@ if ( file_exists( 'Test - Parse Sheet.csv' ) ) {
 	}
 
 	fclose( $file );
-} else {
-	echo 'File does not exist!';
-	die;
-}
 
-$csv_header_format = [ 'EmpID', 'Name', 'Last', 'Skill1', 'Skill2', 'Skill3', 'Skill4', 'Skill5', 'StackID', 'StackNickname', 'CreatedBy', 'UpdatedBy' ];
+	$csv_header_format = [ 'EmpID', 'Name', 'Last', 'Skill1', 'Skill2', 'Skill3', 'Skill4', 'Skill5', 'StackID', 'StackNickname', 'CreatedBy', 'UpdatedBy' ];
 
-// Column headings, 1st row of csv.
-$header = $array[0];
+	// Column headings, 1st row of csv.
+	$header = $array[0];
 
-$header = array_map( 'stripslashes', $header );
-$header = array_map( 'strip_tags', $header );
+	$header = array_map( 'stripslashes', $header );
+	$header = array_map( 'strip_tags', $header );
 
-// Validate if the csv file is in required format.
-if ( $header !== $csv_header_format ) {
-	die( 'Sorry! your csv file format do not match' );
-}
-
-// Array for csv data as array[column_name]=>value
-$csv_data = array();
-
-// For each row of values.
-foreach ( $array as $key => $value ) {
-
-	// 0th row is header.
-	if ( 0 !== $key ) {
-
-		$csv_data[] = array_combine( $header, $value );
+	// Validate if the csv file is in required format.
+	if ( $header !== $csv_header_format ) {
+		die( 'Sorry! your csv file format do not match' );
 	}
-}
 
-$stack_query = array();
-$skill_list = array();
-$hr_list = array();
-$row_skills = array();
+	// Array for csv data as array[column_name]=>value
+	$csv_data = array();
 
-// Hardcoding the column names for inserting data in tables.
-$emp_columns = 'emp_id, emp_fname, emp_lname, emp_fk_hr_created_by, emp_fk_hr_updated_by'; // For employee table.
-$stack_columns = 'emp_auto_id_fk, stack_id, stack_name'; // For stack table.
-$skill_known_columns = 'fk_emp_id, fk_skill_list_id'; // For skill known column.
+	// For each row of values.
+	foreach ( $array as $key => $value ) {
 
-// Accessing through each row of csv data in form of array.
-foreach ( $csv_data as $row ) {
+		// 0th row is header.
+		if ( 0 !== $key ) {
 
-	array_push( $hr_list, $row['CreatedBy'], $row['UpdatedBy'] );
-	array_push( $skill_list, $row['Skill1'], $row['Skill2'], $row['Skill3'], $row['Skill4'], $row['Skill5'] );
-}
+			$csv_data[] = array_combine( $header, $value );
+		}
+	}
 
-// Calling function to createdb connection.
-$conn = create_mysqli_connection();
+	$stack_query = array();
+	$skill_list = array();
+	$hr_list = array();
+	$row_skills = array();
 
-// Insert data into hr and skill table and fetch the array in form list[auto_id]=>name.
-$hr_list = ws_hr_skill_table( $conn, 'ws_hr_list', 'hr_name', $hr_list );
-$skill_list = ws_hr_skill_table( $conn, 'ws_skill_list', 'skill_name', $skill_list );
+	// Hardcoding the column names for inserting data in tables.
+	$emp_columns = 'emp_id, emp_fname, emp_lname, emp_fk_hr_created_by, emp_fk_hr_updated_by'; // For employee table.
+	$stack_columns = 'emp_auto_id_fk, stack_id, stack_name'; // For stack table.
+	$skill_known_columns = 'fk_emp_id, fk_skill_list_id'; // For skill known column.
 
-// Access each cvs array(row) to insert data into tables.
-foreach ( $csv_data as $row ) {
+	// Accessing through each row of csv data in form of array.
+	foreach ( $csv_data as $row ) {
 
-	// Replace the names of the HR by their id.
-	$row['CreatedBy'] = array_search( $row['CreatedBy'] , $hr_list );
-	$row['UpdatedBy'] = array_search( $row['UpdatedBy'] , $hr_list );
+		array_push( $hr_list, $row['CreatedBy'], $row['UpdatedBy'] );
+		array_push( $skill_list, $row['Skill1'], $row['Skill2'], $row['Skill3'], $row['Skill4'], $row['Skill5'] );
+	}
 
-	// Values to be inserted into the employee_detail table.
-	$emp_values = '("' . $row['EmpID'] . '","' . $row['Name'] . '", "' . $row['Last'] . '", "' . $row['CreatedBy'] . '", "' . $row['UpdatedBy'] . '")';
-	$emp_id = ws_insert_query( $conn, 'ws_employee_details', $emp_columns, $emp_values );
+	// Calling function to createdb connection.
+	$conn = create_mysqli_connection();
 
-	// Values to be inserted into the stack_detail table.
-	$stack_values = '("' . $emp_id . '","' . $row['StackID'] . '", "' . $row['StackNickname'] . '")';
-	$id = ws_insert_query( $conn, 'ws_stack_detail', $stack_columns, $stack_values );
+	// Insert data into hr and skill table and fetch the array in form list[auto_id]=>name.
+	$hr_list = ws_hr_skill_table( $conn, 'ws_hr_list', 'hr_name', $hr_list );
+	$skill_list = ws_hr_skill_table( $conn, 'ws_skill_list', 'skill_name', $skill_list );
 
-	// Create array for skills in arow.
-	array_push( $row_skills, $row['Skill1'], $row['Skill2'], $row['Skill3'], $row['Skill4'], $row['Skill5'] );
+	// Access each cvs array(row) to insert data into tables.
+	foreach ( $csv_data as $row ) {
 
-	// Remove the empty skills.
-	$row_skills = array_filter( $row_skills );
+		// Replace the names of the HR by their id.
+		$row['CreatedBy'] = array_search( $row['CreatedBy'] , $hr_list );
+		$row['UpdatedBy'] = array_search( $row['UpdatedBy'] , $hr_list );
 
-	foreach ( $row_skills as $key => $skill ) {
-
-		// Replace the skill with its id.
-		$row_skills[ $key ] = array_search( $skill , $skill_list );
+		// Values to be inserted into the employee_detail table.
+		$emp_values = '("' . $row['EmpID'] . '","' . $row['Name'] . '", "' . $row['Last'] . '", "' . $row['CreatedBy'] . '", "' . $row['UpdatedBy'] . '")';
+		$emp_id = ws_insert_query( $conn, 'ws_employee_details', $emp_columns, $emp_values );
 
 		// Values to be inserted into the stack_detail table.
-		$skill_row_values = '( "' . $emp_id . '", "' . $row_skills[ $key ] . '" )';
-		$id = ws_insert_query( $conn, 'ws_emp_skill_list', $skill_known_columns, $skill_row_values );
+		$stack_values = '("' . $emp_id . '","' . $row['StackID'] . '", "' . $row['StackNickname'] . '")';
+		$id = ws_insert_query( $conn, 'ws_stack_detail', $stack_columns, $stack_values );
+
+		// Create array for skills in arow.
+		array_push( $row_skills, $row['Skill1'], $row['Skill2'], $row['Skill3'], $row['Skill4'], $row['Skill5'] );
+
+		// Remove the empty skills.
+		$row_skills = array_filter( $row_skills );
+
+		foreach ( $row_skills as $key => $skill ) {
+
+			// Replace the skill with its id.
+			$row_skills[ $key ] = array_search( $skill , $skill_list );
+
+			// Values to be inserted into the stack_detail table.
+			$skill_row_values = '( "' . $emp_id . '", "' . $row_skills[ $key ] . '" )';
+			$id = ws_insert_query( $conn, 'ws_emp_skill_list', $skill_known_columns, $skill_row_values );
+		}
+
+		$emp_values = array();
+		$stack_values = array();
+		$row_skills = array();
 	}
 
-	$emp_values = array();
-	$stack_values = array();
-	$row_skills = array();
-}
+	mysqli_close( $conn );
 
-mysqli_close( $conn );
+	$end = microtime( true ); ;
 
-$end = microtime( true ); ;
+	echo 'Data Successfully inserted in ' . ( $end - $start ) ;
 
-echo 'Data Successfully inserted in ' . ( $end - $start ) ;
+} catch ( Exception $e ) {
+	echo 'Message: ' . $e->getMessage();
+} // End try().
+
 
 /**
  * To create database connection.
