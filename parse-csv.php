@@ -107,8 +107,10 @@ try {
 			$row_skills[ $key ] = array_search( $skill , $skill_list );
 
 			// Values to be inserted into the stack_detail table.
-			$skill_row_values = '( "' . $emp_id . '", "' . $row_skills[ $key ] . '" )';
-			$id = ws_insert_query( $conn, 'ws_emp_skill_list', $skill_known_columns, $skill_row_values );
+			if ( 0 !== $emp_id ) {
+				$skill_row_values = '( "' . $emp_id . '", "' . $row_skills[ $key ] . '" )';
+				$id = ws_insert_query( $conn, 'ws_emp_skill_list', $skill_known_columns, $skill_row_values );
+			}
 		}
 
 		$emp_values = array();
@@ -214,7 +216,7 @@ function ws_hr_skill_table( $conn, $table, $column, $array ) {
  */
 function ws_query_operation( $conn, $table, $column, $data ) {
 
-	$sql = "INSERT INTO $table( $column ) VALUES" . $data;
+	$sql = "INSERT IGNORE INTO $table( $column ) VALUES" . $data;
 	$result = mysqli_query( $conn, $sql );
 
 	if ( ! $result ) {

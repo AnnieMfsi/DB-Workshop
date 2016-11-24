@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Nov 22, 2016 at 06:24 PM
+-- Generation Time: Nov 24, 2016 at 04:39 PM
 -- Server version: 5.5.49-0ubuntu0.14.04.1
 -- PHP Version: 5.5.9-1ubuntu4.20
 
@@ -46,11 +46,12 @@ CREATE TABLE IF NOT EXISTS `ws_employee_details` (
 --
 
 CREATE TABLE IF NOT EXISTS `ws_emp_skill_list` (
-  `emp_skill_auto_id` int(3) NOT NULL AUTO_INCREMENT,
   `fk_emp_id` int(3) NOT NULL,
   `fk_skill_list_id` int(3) NOT NULL,
-  PRIMARY KEY (`emp_skill_auto_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=49 ;
+  `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `updated_on` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  PRIMARY KEY (`fk_emp_id`,`fk_skill_list_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -63,7 +64,7 @@ CREATE TABLE IF NOT EXISTS `ws_hr_list` (
   `hr_name` varchar(5) NOT NULL,
   PRIMARY KEY (`hr_auto_id`),
   UNIQUE KEY `hr_name` (`hr_name`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=10 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=7 ;
 
 -- --------------------------------------------------------
 
@@ -74,7 +75,8 @@ CREATE TABLE IF NOT EXISTS `ws_hr_list` (
 CREATE TABLE IF NOT EXISTS `ws_skill_list` (
   `skill_auto_id` int(11) NOT NULL AUTO_INCREMENT,
   `skill_name` varchar(15) NOT NULL,
-  PRIMARY KEY (`skill_auto_id`)
+  PRIMARY KEY (`skill_auto_id`),
+  UNIQUE KEY `skill_name` (`skill_name`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=37 ;
 
 -- --------------------------------------------------------

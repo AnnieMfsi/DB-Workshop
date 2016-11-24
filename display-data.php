@@ -36,7 +36,7 @@
 // Calling function to createdb connection.
 $conn = create_mysqli_connection();
 
-$sql = "SELECT emp.emp_id, emp.emp_fname, emp.emp_lname, GROUP_CONCAT(skill.skill_name ORDER BY eskill.emp_skill_auto_id ASC) skills, estack.stack_id, estack.stack_name, hr1.hr_name Created_by, hr2.hr_name Updated_by
+$sql = "SELECT emp.emp_id, emp.emp_fname, emp.emp_lname, GROUP_CONCAT(skill.skill_name ORDER BY eskill.fk_skill_list_id ASC) skills, estack.stack_id, estack.stack_name, hr1.hr_name Created_by, hr2.hr_name Updated_by
 	FROM ws_employee_details emp
 	LEFT JOIN ws_emp_skill_list eskill ON emp.emp_auto_id = eskill.fk_emp_id
 	LEFT JOIN ws_skill_list skill ON eskill.fk_skill_list_id = skill.skill_auto_id
