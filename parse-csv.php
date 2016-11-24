@@ -8,7 +8,8 @@
 ini_set( 'display_startup_errors', 1 );
 ini_set( 'display_errors', 1 );
 
-$start = microtime(true);
+$start = microtime( true );
+
 // Check if the csv file exist.
 if ( file_exists( 'Test - Parse Sheet.csv' ) ) {
 	$file = fopen( 'Test - Parse Sheet.csv', 'r' );
@@ -42,8 +43,6 @@ if ( $header !== $csv_header_format ) {
 	die( 'Sorry! your csv file format do not match' );
 }
 
-// $i = 0;
-
 // Array for csv data as array[column_name]=>value
 $csv_data = array();
 
@@ -62,6 +61,11 @@ $skill_list = array();
 $hr_list = array();
 $row_skills = array();
 
+// Hardcoding the column names for inserting data in tables.
+$emp_columns = 'emp_id, emp_fname, emp_lname, emp_fk_hr_created_by, emp_fk_hr_updated_by'; // For employee table.
+$stack_columns = 'emp_auto_id_fk, stack_id, stack_name'; // For stack table.
+$skill_known_columns = 'fk_emp_id, fk_skill_list_id'; // For skill known column.
+
 // Accessing through each row of csv data in form of array.
 foreach ( $csv_data as $row ) {
 
@@ -75,11 +79,6 @@ $conn = create_mysqli_connection();
 // Insert data into hr and skill table and fetch the array in form list[auto_id]=>name.
 $hr_list = ws_hr_skill_table( $conn, 'ws_hr_list', 'hr_name', $hr_list );
 $skill_list = ws_hr_skill_table( $conn, 'ws_skill_list', 'skill_name', $skill_list );
-
-// Hardcoding the column names for inserting data in tables.
-$emp_columns = 'emp_id, emp_fname, emp_lname, emp_fk_hr_created_by, emp_fk_hr_updated_by'; // For employee table.
-$stack_columns = 'emp_auto_id_fk, stack_id, stack_name'; // For stack table.
-$skill_known_columns = 'fk_emp_id, fk_skill_list_id'; // For skill known column.
 
 // Access each cvs array(row) to insert data into tables.
 foreach ( $csv_data as $row ) {
@@ -119,7 +118,7 @@ foreach ( $csv_data as $row ) {
 
 mysqli_close( $conn );
 
-$end = microtime(true); ;
+$end = microtime( true ); ;
 
 echo 'Data Successfully inserted in ' . ( $end - $start ) ;
 
